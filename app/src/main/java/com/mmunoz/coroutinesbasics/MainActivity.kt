@@ -7,7 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import com.mmunoz.coroutinesbasics.ui.theme.CoroutinesBasicsTheme
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.system.measureTimeMillis
 
@@ -17,24 +19,21 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         fun CoroutineScope.sound(pace: Long, sound: String) = launch {
-            repeat(4) { time ->
+            while (isActive) {
                 delay(pace)
-                println("$sound at time ${time + 1} after ${pace / 1000} seconds")
+                println("$sound after ${pace / 1000} seconds")
             }
         }
 
         lifecycleScope.launch {
-
-            val bird1 = sound(1000, "Coo")
-            val bird2 = sound(2000, "Caw")
-            val bird3 = sound(3000, "Chirp")
+            sound(1000, "Coo")
+            sound(2000, "Caw")
+            sound(3000, "Chirp")
 
             val timeMillis = measureTimeMillis {
-                bird1.join()
-                bird2.join()
-                bird3.join()
+                delay(10000)
+                coroutineContext.cancelChildren()
             }
-
             println("Time of execution: $timeMillis")
         }
 
